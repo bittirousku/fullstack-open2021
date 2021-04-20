@@ -14,7 +14,7 @@ const App = () => {
     peopleService.getAll().then((response) => setPeople(response.data))
   }, [])
 
-  const addPerson = (event) => {
+  function addPerson(event) {
     event.preventDefault()
     let personExists = people.map((person) => person.name).includes(newName)
     if (personExists) {
@@ -22,48 +22,57 @@ const App = () => {
         `${newName} already in DB, do you want to update the phone number?`
       )
       if (shouldUpdate) {
-        setPeople(
-          people.map((person) =>
-            person.name === newName ? { ...person, number: newNumber } : person
-          )
-        )
-        // Why is the personToUpdate still the old one???
-        // It was just updated in the above line!
-        // OK, setPeople is asynchronous and the result is not set immediately,
-        // so the people variable still holds the old people list
-        console.log(people)
-        let personToUpdate = people.find((person) => person.name === newName)
-        console.log(personToUpdate)
-        peopleService
-          .update(personToUpdate.id, {
-            ...personToUpdate,
-            number: newNumber,
-          })
-          .then((response) => console.log(response.data))
-          .then(() =>
-            notificator(
-              `Successfully updated ${personToUpdate.name}`,
-              "success"
-            )
-          )
+        updatePerson()
       }
     } else {
-      const newPerson = {
-        name: newName,
-        number: newNumber,
-      }
-      peopleService
-        .create(newPerson)
-        .then((response) => {
-          console.log(`Adding person ${JSON.stringify(response.data)}`)
-          setPeople(people.concat(response.data))
-        })
-        .then(() =>
-          notificator(`Successfully added ${newPerson.name}`, "success")
-        )
+      createPerson()
     }
     setNewName("")
     setNewNumber("")
+  }
+
+  function updatePerson() {
+    setPeople(
+      people.map((person) =>
+        person.name === newName ? { ...person, number: newNumber } : person
+      )
+    )
+    // Why is the personToUpdate still the old one???
+    // It was just updated in the above line!
+    // OK, setPeople is asynchronous and the result is not set immediately,
+    // so the people variable still holds the old people list
+    console.log("All people", people)
+    let personToUpdate = people.find((person) => person.name === newName)
+    console.log("Person to update", personToUpdate)
+    peopleService
+      .update(personToUpdate.id, {
+        ...personToUpdate,
+        number: newNumber,
+      })
+      .then((response) => console.log(response.data))
+      .then(() =>
+        notificator(`Successfully updated ${personToUpdate.name}`, "success")
+      )
+  }
+
+  function createPerson() {
+    const newPerson = {
+      name: newName,
+      number: newNumber,
+    }
+    peopleService
+      .create(newPerson)
+      .then((response) => {
+        console.log(`Adding person ${JSON.stringify(response.data)}`)
+        setPeople(people.concat(response.data))
+      })
+      .then(() =>
+        notificator(`Successfully added ${newPerson.name}`, "success")
+      )
+      .catch((err) => {
+        console.log(err)
+        notificator(err.response.data.error, "error")
+      })
   }
 
   const handleNameChange = (event) => setNewName(event.target.value)
