@@ -18,7 +18,7 @@ blogsRouter.get("/:id", async (request, response) => {
 })
 
 blogsRouter.post("/", async (request, response) => {
-  const user = await User.findById(request.body.user)
+  const user = await User.findById(request.token.id)
 
   const blog = new Blog({
     ...request.body,
@@ -29,11 +29,6 @@ blogsRouter.post("/", async (request, response) => {
   await user.save()
 
   return response.status(201).json(savedBlog)
-
-  // The same using promise chaining:
-  // blog.save().then((result) => {
-  //   response.status(201).json(result)
-  // })
 })
 
 blogsRouter.patch("/:id", async (request, response) => {
