@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
     "title": "elämä ja teot",
-    "author": "kekkone",
+    "user": "60801533cac10d9ab387c773",
     "url": "wwww.fi",
     "likes": 0
 }
