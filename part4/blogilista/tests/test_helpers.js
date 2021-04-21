@@ -27,6 +27,7 @@ const initialUsers = [
     blogs: [],
   },
 ]
+
 module.exports = {
   initialBlogs,
   initialUsers,

@@ -13,9 +13,9 @@ beforeEach(async () => {
   await User.insertMany(helper.initialUsers)
 })
 
-// afterEach(async () => {
-//   await User.deleteMany({})
-// })
+afterEach(async () => {
+  await User.deleteMany({})
+})
 
 describe("When GETting users", () => {
   test("should see all the users", async () => {
@@ -24,18 +24,33 @@ describe("When GETting users", () => {
   })
 
   test("should see users blogs", async () => {
-    const response = await api.get("/api/users")
-
+    const newUser = {
+      name: "nimi",
+      username: "tunnus",
+      password: "passu",
+    }
+    const createdUserResponse = await api.post("/api/users").send(newUser)
     const newBlog = {
       title: "testing",
-      user: response.body[0].id,
+      user: createdUserResponse.body.id,
       url: "www.test",
       likes: 0,
     }
-    await api.post("/api/blogs/").send(newBlog)
-    const responseAgain = await api.get(`/api/users/${response.body[0].id}`)
 
-    expect(response.body[0].blogs.length).toBe(0)
+    //must login before posting
+    const loginResponse = await api.post("/api/login").send(newUser)
+    // Add a new blog
+    await api
+      .post("/api/blogs/")
+      .send(newBlog)
+      .set("authorization", `bearer ${loginResponse.body.token}`)
+      .expect(201)
+
+    const responseAgain = await api.get(
+      `/api/users/${createdUserResponse.body.id}`
+    )
+
+    expect(createdUserResponse.body.blogs.length).toBe(0)
     expect(responseAgain.body.blogs.length).toBe(1)
   })
 

@@ -8,18 +8,26 @@ const Blog = require("../models/blog")
 const User = require("../models/user")
 const helper = require("./test_helpers")
 
-let testUser = {}
+let testUser = {
+  name: "x y z",
+  username: "yyy",
+  password: "zzz",
+  token: "",
+}
+// FIXME: these tests take a long time to run, investigate and fix
+
+async function loginUser() {
+  const newUserResponse = await api.post("/api/users").send(testUser)
+  const loginResponse = await api.post("/api/login").send(testUser)
+  testUser.token = loginResponse.body.token
+  testUser.id = newUserResponse.body.id
+}
 
 beforeEach(async () => {
   await Blog.deleteMany({})
   await User.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
-  const user = new User({
-    name: "x y z",
-    username: "yyy",
-    passwordHash: "zzz",
-  })
-  testUser = await user.save()
+  await loginUser()
 })
 
 afterEach(async () => {
@@ -58,6 +66,7 @@ describe("When POSTing blogs", () => {
     const postResponse = await api
       .post("/api/blogs")
       .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
       .expect(201)
       .expect("Content-Type", /application\/json/)
 
@@ -76,6 +85,7 @@ describe("When POSTing blogs", () => {
     const postResponse = await api
       .post("/api/blogs")
       .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
       .expect(201)
       .expect("Content-Type", /application\/json/)
 
@@ -88,33 +98,94 @@ describe("When POSTing blogs", () => {
       user: testUser.id,
       url: "www.fi",
     }
-    await api.post("/api/blogs").send(newBlog).expect(400)
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(400)
   })
   test("HTTP 400 for a blog without url", async () => {
     const newBlog = {
       user: testUser.id,
       title: "nothing",
     }
-    await api.post("/api/blogs").send(newBlog).expect(400)
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(400)
   })
-  test("HTTP 400 for a blog without valid author id", async () => {
+  test("HTTP 400 for a blog without valid token authorization", async () => {
     const newBlog = {
       user: "ipe",
       title: "nothing",
       url: "www.fi",
     }
-    await api.post("/api/blogs").send(newBlog).expect(400)
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", "trololoo")
+      .expect(401)
   })
 })
 
 describe("When DELeting", () => {
   test("should delete", async () => {
+    // First create a new blog post
+    const newBlog = {
+      title: "testing",
+      user: testUser.id,
+      url: "www.test",
+      likes: 0,
+    }
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(201)
+      .expect("Content-Type", /application\/json/)
+
+    const getResponseBeforeDeleting = await api.get("/api/blogs")
+
+    await api
+      .delete(`/api/blogs/${postResponse.body.id}`)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(204)
+
+    const getResponseAfterDeleting = await api.get("/api/blogs")
+
+    expect(getResponseBeforeDeleting.body.length).toBe(3)
+    expect(getResponseAfterDeleting.body.length).toBe(2)
+  })
+
+  test("should not delete without authorization", async () => {
+    // First create a new blog post
+    const newBlog = {
+      title: "testing",
+      user: testUser.id,
+      url: "www.test",
+      likes: 0,
+    }
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(201)
+      .expect("Content-Type", /application\/json/)
+
+    await api.delete(`/api/blogs/${postResponse.body.id}`).expect(401)
+  })
+
+  test("should not delete other users blogs", async () => {
     const response = await api.get("/api/blogs")
-    await api.delete(`/api/blogs/${response.body[0].id}`)
+    await api
+      .delete(`/api/blogs/${response.body[0].id}`)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(401)
     const responseAgain = await api.get("/api/blogs")
 
     expect(response.body).toHaveLength(2)
-    expect(responseAgain.body).toHaveLength(1)
+    expect(responseAgain.body).toHaveLength(2)
   })
 })
 
@@ -126,11 +197,16 @@ describe("When PATCHing", () => {
       url: "www.test",
     }
     const newLikeCount = 500
-    const postResponse = await api.post("/api/blogs").send(newBlog).expect(201)
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("authorization", `bearer ${testUser.token}`)
+      .expect(201)
 
     const patchResponse = await api
       .patch(`/api/blogs/${postResponse.body.id}`)
       .send({ likes: newLikeCount })
+      .set("authorization", `bearer ${testUser.token}`)
       .expect(200)
 
     const getResponse = await api.get(`/api/blogs/${postResponse.body.id}`)
