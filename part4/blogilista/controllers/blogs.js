@@ -41,11 +41,22 @@ blogsRouter.patch(
   tokenExtractor,
   userExtractor,
   async (request, response) => {
+    // We should not allow setting the likes value,
+    // only incrementing it.
+    // const updatedBlog = await Blog.findByIdAndUpdate(
+    //   request.params.id,
+    //   { likes: request.body.likes },
+    //   { new: true }
+    // )
+    if (!request.body.likes) {
+      return response.status(400).send("Only incrementing likes is supported.")
+    }
     const updatedBlog = await Blog.findByIdAndUpdate(
       request.params.id,
-      { likes: request.body.likes },
+      { $inc: { likes: 1 } },
       { new: true }
     )
+
     return response.status(200).json(updatedBlog)
   }
 )
