@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import Blog from "./components/Blog"
 import blogService from "./services/blogs"
 import loginService from "./services/login"
 import Login from "./components/Login"
 import BlogForm from "./components/BlogForm"
 import Notification from "./components/Notification"
+import Togglable from "./components/Togglable"
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  // Form state, would be better as an object:
-  const [blogTitle, setblogTitle] = useState("")
-  const [blogAuthor, setblogAuthor] = useState("")
-  const [blogUrl, setblogUrl] = useState("")
   // Auth state:
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [user, setUser] = useState(null)
   // notification message:
   const [message, setMessage] = useState({})
+
+  const blogFormRef = useRef()
 
   // Get all the blogs
   useEffect(() => {
@@ -56,27 +55,21 @@ const App = () => {
     showNotification("Logged out!", "success")
   }
 
-  async function addBlog(event) {
-    event.preventDefault()
-    let blog = { author: blogAuthor, title: blogTitle, url: blogUrl }
-    const created = await blogService.create(blog, user.token)
-    setblogAuthor("")
-    setblogTitle("")
-    setblogUrl("")
+  async function addBlog(newBlog) {
+    const created = await blogService.create(newBlog, user.token)
     setBlogs(blogs.concat(created))
+    blogFormRef.current.toggleVisibility()
     showNotification("Added blog", "success")
-  }
-  // This makes me laugh
-  function handleBlogChange(event) {
-    event.target.name === "author" && setblogAuthor(event.target.value)
-    event.target.name === "title" && setblogTitle(event.target.value)
-    event.target.name === "url" && setblogUrl(event.target.value)
   }
 
   function showNotification(message, type) {
     let msg = { text: message, type: type }
     setMessage(msg)
     setTimeout(() => setMessage(null), 5000)
+  }
+
+  async function incrementLikes(id, updateData) {
+    return await blogService.update(id, updateData, user.token)
   }
 
   // These functions don't feel good
@@ -94,13 +87,9 @@ const App = () => {
   }
   function showBlogForm() {
     return (
-      <BlogForm
-        addBlog={addBlog}
-        blogTitle={blogTitle}
-        blogAuthor={blogAuthor}
-        blogUrl={blogUrl}
-        handleBlogChange={handleBlogChange}
-      />
+      <Togglable buttonLabel="create new" ref={blogFormRef}>
+        <BlogForm addBlog={addBlog} />
+      </Togglable>
     )
   }
   // My react components start turning into functions... not cool?
@@ -123,7 +112,7 @@ const App = () => {
 
       <h2>Blogs</h2>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} incrementLikes={incrementLikes} />
       ))}
     </div>
   )

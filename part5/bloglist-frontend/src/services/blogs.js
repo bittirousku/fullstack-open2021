@@ -12,9 +12,17 @@ const create = async (data, token) => {
   return response.data
 }
 
+const update = async (id, data, token) => {
+  const config = { headers: { Authorization: `bearer ${token}` } }
+  const url = `${baseUrl}/${id}`
+  const response = await axios.patch(url, data, config)
+  return response.data
+}
+
 const blogService = {
   create,
   getAll,
+  update,
 }
 
 export default blogService
