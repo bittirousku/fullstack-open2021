@@ -23,6 +23,7 @@ blogsRouter.post(
   tokenExtractor,
   userExtractor,
   async (request, response) => {
+    console.log("request body:", request.body)
     const blog = new Blog({
       ...request.body,
       user: request.user._id,
