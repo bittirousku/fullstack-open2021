@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 describe("Blog app", function () {
   let user = {
     name: "Urho k Kekkonen",
@@ -143,7 +144,55 @@ describe("Blog app", function () {
       })
 
       it("blogs should be ordered by the amount of likes", function () {
-        // TODO
+        function likeBlogById(id) {
+          cy.request({
+            url: `http://localhost:3001/api/blogs/${id}`,
+            method: "PATCH",
+            body: { likes: 1 },
+          })
+        }
+
+        let blog1 = { title: "otsikko1", author: "tekijä1", url: "www.fi" }
+        let blog2 = { title: "otsikko2", author: "tekijä2", url: "www.com" }
+        let blog3 = { title: "otsikko3", author: "tekijä3", url: "www.net" }
+        cy.addBlog({ blog: blog1 }).then((response) => {
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+        })
+        cy.addBlog({ blog: blog2 }).then((response) => {
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+        })
+        cy.addBlog({ blog: blog3 }).then((response) => {
+          likeBlogById(response.body.id)
+          likeBlogById(response.body.id)
+        })
+        cy.visit("http://localhost:3000")
+
+        // Assert that the blogs are in the correct order
+        cy.get(".blogentry")
+          .eq(0)
+          .find(".blogtitlebar")
+          .should("contain", blog2.title)
+
+        cy.get(".blogentry")
+          .eq(1)
+          .find(".blogtitlebar")
+          .should("contain", blog1.title)
+
+        cy.get(".blogentry")
+          .eq(2)
+          .find(".blogtitlebar")
+          .should("contain", blog3.title)
+
+        cy.get(".blogentry")
+          .eq(3)
+          .find(".blogtitlebar")
+          .should("contain", blog.title)
       })
     })
   })
