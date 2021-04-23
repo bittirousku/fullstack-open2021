@@ -6,23 +6,23 @@ const getAll = () => {
 }
 
 const create = async (data, token) => {
-  const response = await axios.post(baseUrl, data, getHeaderConfig(token))
+  const response = await axios.post(baseUrl, data, _getHeaderConfig(token))
   return response.data
 }
 
 const update = async (id, data, token) => {
   const url = `${baseUrl}/${id}`
-  const response = await axios.patch(url, data, getHeaderConfig(token))
+  const response = await axios.patch(url, data, _getHeaderConfig(token))
   return response.data
 }
 
 const remove = async (id, token) => {
   const url = `${baseUrl}/${id}`
-  const response = await axios.delete(url, getHeaderConfig(token))
+  const response = await axios.delete(url, _getHeaderConfig(token))
   return response.data
 }
 
-const getHeaderConfig = (token) => ({
+const _getHeaderConfig = (token) => ({
   headers: { Authorization: `bearer ${token}` },
 })
 

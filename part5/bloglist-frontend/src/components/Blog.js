@@ -22,8 +22,8 @@ const Blog = ({ blog, incrementLikes, handleDelete, user }) => {
   }
 
   return (
-    <div style={blogStyle}>
-      <div onClick={handleView} style={headerStyle}>
+    <div className="blogentry" style={blogStyle}>
+      <div className="blogtitlebar" onClick={handleView} style={headerStyle}>
         {blog.title} by {blog.author}
       </div>
       {detailsVisible && (
@@ -50,11 +50,11 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
     }
   }, [blog.user.username, user.username])
 
+  // This is really ugly and hacky solution
   async function handleLikes(event) {
     const id = event.target.dataset.blogid
     // The likes value doesn't really matter as the backend will
     // always just increment the existing value with PATCH
-    // hacky solution
     const updateData = { likes: 1 }
     const updatedBlog = await incrementLikes(id, updateData)
     blog = updatedBlog
@@ -63,14 +63,14 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
   }
 
   return (
-    <div>
-      <div>Author: {blog.author}</div>
-      <div>Url: {blog.url}</div>
-      <div>
+    <div className="blogdetails">
+      <div className="author">Author: {blog.author}</div>
+      <div className="url">Url: {blog.url}</div>
+      <div className="likes">
         Likes: {likes}
         <LikeButton id={blog.id} handleLikes={handleLikes} />
       </div>
-      <div style={showForCurrentUser}>
+      <div className="deletebutton" style={showForCurrentUser}>
         <button data-blogid={blog.id} onClick={handleDelete}>
           Delete
         </button>
@@ -88,7 +88,7 @@ BlogDetails.propTypes = {
 const LikeButton = ({ id, handleLikes }) => {
   return (
     <>
-      <button data-blogid={id} onClick={handleLikes}>
+      <button className="likebutton" data-blogid={id} onClick={handleLikes}>
         Like
       </button>
     </>
