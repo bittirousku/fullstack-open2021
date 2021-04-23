@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react"
+import PropTypes from "prop-types"
 
 const Blog = ({ blog, incrementLikes, handleDelete, user }) => {
   const [detailsVisible, setDetailsVisible] = useState(false)
 
-  function handleView(event) {
+  function handleView() {
     console.log("visibility toggled to", !detailsVisible)
     setDetailsVisible(!detailsVisible)
   }
@@ -76,6 +77,12 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
       </div>
     </div>
   )
+}
+BlogDetails.propTypes = {
+  blog: PropTypes.object.isRequired,
+  incrementLikes: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 }
 
 const LikeButton = ({ id, handleLikes }) => {

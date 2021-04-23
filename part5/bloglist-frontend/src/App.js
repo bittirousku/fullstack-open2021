@@ -48,7 +48,7 @@ const App = () => {
     setPassword("")
   }
 
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     console.log("logging out")
     window.localStorage.removeItem("loggedBlogger")
     setUser(null)
