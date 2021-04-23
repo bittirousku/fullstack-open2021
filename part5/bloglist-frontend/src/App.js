@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import React, { useState, useEffect, useRef } from "react"
 import Blog from "./components/Blog"
 import blogService from "./services/blogs"
@@ -57,6 +58,13 @@ const App = () => {
 
   async function addBlog(newBlog) {
     const created = await blogService.create(newBlog, user.token)
+    // FIXME: THIS IS PROBLEMATIC:
+    // This has not yet been enriched with the user data.
+    // It's not there even if we do a GET request with the ID. WHY?????
+    // Have to manually add the user id there for the time being
+    // Should find a real solution for this though.
+    //
+    created.user = { username: user.username } // dirty hack
     setBlogs(blogs.concat(created))
     blogFormRef.current.toggleVisibility()
     showNotification("Added blog", "success")
@@ -77,7 +85,8 @@ const App = () => {
   }
 
   async function incrementLikes(id, updateData) {
-    const updatedBlog = await blogService.update(id, updateData, user.token)
+    // NOTE: we don't want authentication for likes!
+    const updatedBlog = await blogService.update(id, updateData)
     //  update the blogs list with the updated likes
     let updatedBlogs = blogs.map((blog) =>
       blog.id === updatedBlog.id ? updatedBlog : blog

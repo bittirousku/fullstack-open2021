@@ -14,6 +14,7 @@ const Login = ({
         <div>
           username
           <input
+            id="username"
             type="text"
             value={username} // why does react want this here? It works fine without...
             name="Username"
@@ -23,13 +24,16 @@ const Login = ({
         <div>
           password
           <input
+            id="password"
             type="password"
             value={password}
             name="Password"
             onChange={handlePassword}
           />
         </div>
-        <button type="submit">login</button>
+        <button id="submit" type="submit">
+          login
+        </button>
       </form>
     </div>
   )

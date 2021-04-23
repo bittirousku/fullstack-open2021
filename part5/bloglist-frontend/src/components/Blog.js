@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import React, { useState, useEffect } from "react"
 import PropTypes from "prop-types"
 
@@ -42,13 +43,15 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
   const [likes, setLikes] = useState(blog.likes)
   const [visible, setVisible] = useState(false)
 
-  const showForCurrentUser = { display: visible ? "" : "none" }
-
+  // This part was problematic, as the `blog` didn't have the populated user data
+  // from MongoDB at first. This is fixed with a dirty hack in App.addBlog
   useEffect(() => {
-    if (blog.user.username === user.username) {
+    if (user !== null && blog.user.username === user.username) {
       setVisible(true)
     }
-  }, [blog.user.username, user.username])
+  }, [])
+
+  const showForCurrentUser = { display: visible ? "" : "none" }
 
   // This is really ugly and hacky solution
   async function handleLikes(event) {
@@ -70,8 +73,12 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
         Likes: {likes}
         <LikeButton id={blog.id} handleLikes={handleLikes} />
       </div>
-      <div className="deletebutton" style={showForCurrentUser}>
-        <button data-blogid={blog.id} onClick={handleDelete}>
+      <div style={showForCurrentUser}>
+        <button
+          className="deletebutton"
+          data-blogid={blog.id}
+          onClick={handleDelete}
+        >
           Delete
         </button>
       </div>
@@ -82,7 +89,7 @@ BlogDetails.propTypes = {
   blog: PropTypes.object.isRequired,
   incrementLikes: PropTypes.func.isRequired,
   handleDelete: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
 }
 
 const LikeButton = ({ id, handleLikes }) => {
