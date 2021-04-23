@@ -20,7 +20,7 @@ const App = () => {
 
   // Get all the blogs
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    blogService.getAll().then((blogs) => setBlogs(sortBlogsByLikes(blogs)))
   }, [])
 
   // Get the token (if it exists) and set it as the App state
@@ -62,6 +62,14 @@ const App = () => {
     showNotification("Added blog", "success")
   }
 
+  async function removeBlog(event) {
+    const id = event.target.dataset.blogid
+    if (window.confirm(`Do you want to delete blog  ${id}?`)) {
+      await blogService.remove(id, user.token)
+      setBlogs(sortBlogsByLikes(blogs.filter((blog) => blog.id !== id)))
+    }
+  }
+
   function showNotification(message, type) {
     let msg = { text: message, type: type }
     setMessage(msg)
@@ -69,7 +77,21 @@ const App = () => {
   }
 
   async function incrementLikes(id, updateData) {
-    return await blogService.update(id, updateData, user.token)
+    const updatedBlog = await blogService.update(id, updateData, user.token)
+    //  update the blogs list with the updated likes
+    let updatedBlogs = blogs.map((blog) =>
+      blog.id === updatedBlog.id ? updatedBlog : blog
+    )
+    setBlogs(sortBlogsByLikes(updatedBlogs))
+    return updatedBlog
+  }
+
+  function sortBlogsByLikes(blogs) {
+    // Is this really the way to sort arrays in Javascript?
+    // I would rather perhaps use lodash
+    return [...blogs].sort((b1, b2) =>
+      b1.likes < b2.likes ? 1 : b1.likes > b2.likes ? -1 : 0
+    )
   }
 
   // These functions don't feel good
@@ -112,7 +134,13 @@ const App = () => {
 
       <h2>Blogs</h2>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} incrementLikes={incrementLikes} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          incrementLikes={incrementLikes}
+          handleDelete={removeBlog}
+          user={user}
+        />
       ))}
     </div>
   )

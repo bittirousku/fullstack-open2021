@@ -6,23 +6,31 @@ const getAll = () => {
 }
 
 const create = async (data, token) => {
-  console.log("header", `bearer ${token}`)
-  const config = { headers: { Authorization: `bearer ${token}` } }
-  const response = await axios.post(baseUrl, data, config)
+  const response = await axios.post(baseUrl, data, getHeaderConfig(token))
   return response.data
 }
 
 const update = async (id, data, token) => {
-  const config = { headers: { Authorization: `bearer ${token}` } }
   const url = `${baseUrl}/${id}`
-  const response = await axios.patch(url, data, config)
+  const response = await axios.patch(url, data, getHeaderConfig(token))
   return response.data
 }
+
+const remove = async (id, token) => {
+  const url = `${baseUrl}/${id}`
+  const response = await axios.delete(url, getHeaderConfig(token))
+  return response.data
+}
+
+const getHeaderConfig = (token) => ({
+  headers: { Authorization: `bearer ${token}` },
+})
 
 const blogService = {
   create,
   getAll,
   update,
+  remove,
 }
 
 export default blogService
