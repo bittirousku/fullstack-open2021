@@ -1,10 +1,13 @@
+let timeoutId
+
 const notificationReducer = (state = "", action) => {
-  console.log("state now: ", state)
+  console.log("state now on notificationReducer: ", state)
   console.log("action", action)
 
   switch (action.type) {
     case "SET_NOTIFICATION":
-      return action.text
+      state = action.text
+      return state
     default:
       return state
   }
@@ -27,7 +30,15 @@ export function removeNotification() {
 export function showNotification(text, timeout = 5000) {
   return async (dispatch) => {
     dispatch(addNotification(text))
-    setTimeout(() => dispatch(removeNotification()), timeout)
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    // Is this a cool way to keep track of the timeouts?
+    // Or should we have a proper state for them?
+    // Seems to work though so LGTM.
+    timeoutId = setTimeout(() => {
+      dispatch(removeNotification())
+    }, timeout)
   }
 }
 

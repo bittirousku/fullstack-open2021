@@ -11,6 +11,7 @@ const filterReducer = (state = "", action) => {
 }
 
 export function setFilter(text) {
+  console.log("Filter reducer", text)
   return {
     type: "SET_FILTER",
     text,
