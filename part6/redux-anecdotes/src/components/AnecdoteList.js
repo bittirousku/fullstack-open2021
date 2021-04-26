@@ -1,32 +1,20 @@
 import React from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { vote } from "../reducers/anecdoteReducer"
-import {
-  addNotification,
-  removeNotification,
-} from "../reducers/notificationReducer"
-
-import anecdoteService from "../services/anecdotes"
+import { showNotification } from "../reducers/notificationReducer"
 
 const AnecdoteList = () => {
   const anecdotes = useSelector((state) => state.anecdotes)
   const filter = useSelector((state) => state.filter)
   const dispatch = useDispatch()
 
-  // How to remove the duplication of this function?
-  function showNotification(text) {
-    dispatch(addNotification(text))
-    setTimeout(() => dispatch(removeNotification()), 5000)
-  }
-
   function sortByVotes(a, b) {
     return a.votes < b.votes ? 1 : a.votes > b.votes ? -1 : 0
   }
 
   function voteAnecdote(anecdote) {
-    showNotification(`You just voted '${anecdote.content}'`)
-    anecdoteService.voteAnecdote(anecdote.id, { votes: anecdote.votes + 1 })
-    dispatch(vote(anecdote.id))
+    dispatch(vote(anecdote))
+    dispatch(showNotification(`You just voted '${anecdote.content}'`))
   }
 
   const visibleAnecdotes = filter

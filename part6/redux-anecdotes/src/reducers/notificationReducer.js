@@ -24,4 +24,11 @@ export function removeNotification() {
   }
 }
 
+export function showNotification(text, timeout = 5000) {
+  return async (dispatch) => {
+    dispatch(addNotification(text))
+    setTimeout(() => dispatch(removeNotification()), timeout)
+  }
+}
+
 export default notificationReducer

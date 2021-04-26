@@ -1,30 +1,18 @@
 import React from "react"
 import { useDispatch } from "react-redux"
-import { add } from "../reducers/anecdoteReducer"
-import {
-  addNotification,
-  removeNotification,
-} from "../reducers/notificationReducer"
-import anecdoteService from "../services/anecdotes"
+import { create } from "../reducers/anecdoteReducer"
+import { showNotification } from "../reducers/notificationReducer"
 
 const AnecdoteForm = () => {
   const dispatch = useDispatch()
-
-  // How to remove the duplication of this function?
-  function showNotification(text) {
-    dispatch(addNotification(text))
-    setTimeout(() => dispatch(removeNotification()), 5000)
-  }
 
   async function addAnecdote(event) {
     event.preventDefault()
     let text = event.target.text.value
     event.target.text.value = ""
 
-    const newAnecdote = await anecdoteService.createNew(text)
-
-    dispatch(add(newAnecdote))
-    showNotification(`You added '${text}'`)
+    dispatch(create(text))
+    dispatch(showNotification(`You added '${text}'`))
   }
 
   return (
