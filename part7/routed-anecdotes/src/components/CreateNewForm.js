@@ -1,24 +1,31 @@
-import React, { useState } from "react"
+import React from "react"
 import { useHistory } from "react-router-dom"
 
+import { useField } from "../hooks"
+
 const CreateNewForm = (props) => {
-  const [content, setContent] = useState("")
-  const [author, setAuthor] = useState("")
-  const [info, setInfo] = useState("")
   const history = useHistory()
+
+  const content = useField("content")
+  const author = useField("author")
+  const info = useField("info")
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.props.value,
+      author: author.props.value,
+      info: info.props.value,
       votes: 0,
     })
-    setContent("")
-    setAuthor("")
-    setInfo("")
+    emptyFields()
     history.push("/")
+  }
+
+  function emptyFields() {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -27,29 +34,21 @@ const CreateNewForm = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <input {...content.props} />
         </div>
         <div>
           author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
+          <input {...author.props} />
         </div>
         <div>
           url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
+          <input {...info.props} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        {/* Need to set type=button, otherwise it's considered a submit button too */}
+        <button name="reset" type="button" onClick={emptyFields}>
+          reset
+        </button>
       </form>
     </div>
   )
