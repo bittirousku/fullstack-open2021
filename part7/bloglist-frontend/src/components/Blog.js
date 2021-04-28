@@ -2,7 +2,11 @@
 import React, { useState, useEffect } from "react"
 import PropTypes from "prop-types"
 
-const Blog = ({ blog, incrementLikes, handleDelete, user }) => {
+import { useDispatch } from "react-redux"
+
+import { removeBlog, likeBlog } from "../reducers/blogsReducer"
+
+const Blog = ({ blog, user }) => {
   const [detailsVisible, setDetailsVisible] = useState(false)
 
   function handleView() {
@@ -27,42 +31,37 @@ const Blog = ({ blog, incrementLikes, handleDelete, user }) => {
       <div className="blogtitlebar" onClick={handleView} style={headerStyle}>
         {blog.title} by {blog.author}
       </div>
-      {detailsVisible && (
-        <BlogDetails
-          blog={blog}
-          incrementLikes={incrementLikes}
-          handleDelete={handleDelete}
-          user={user}
-        />
-      )}
+      {detailsVisible && <BlogDetails blog={blog} user={user} />}
     </div>
   )
 }
 
-const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
-  const [likes, setLikes] = useState(blog.likes)
+const BlogDetails = ({ blog, user }) => {
   const [visible, setVisible] = useState(false)
 
+  const dispatch = useDispatch()
+
   // This part was problematic, as the `blog` didn't have the populated user data
-  // from MongoDB at first. This is fixed with a dirty hack in App.addBlog
+  // from MongoDB at first. This is fixed with a dirty hack in blogsReducer.create
   useEffect(() => {
-    if (user !== null && blog.user.username === user.username) {
-      setVisible(true)
+    function setVisibleForLoggedInUsers(blog, user) {
+      if (user !== null && blog.user.username === user.username) {
+        setVisible(true)
+      }
     }
+    setVisibleForLoggedInUsers(blog, user)
   }, [])
 
   const showForCurrentUser = { display: visible ? "" : "none" }
 
-  // This is really ugly and hacky solution
-  async function handleLikes(event) {
+  function handleRemove(event) {
     const id = event.target.dataset.blogid
-    // The likes value doesn't really matter as the backend will
-    // always just increment the existing value with PATCH
-    const updateData = { likes: 1 }
-    const updatedBlog = await incrementLikes(id, updateData)
-    blog = updatedBlog
-    // TODO: should we set the blog as a React state instead of blog.likes?
-    setLikes(updatedBlog.likes)
+    dispatch(removeBlog(id, user))
+  }
+
+  function handleLikes(event) {
+    const id = event.target.dataset.blogid
+    dispatch(likeBlog(id))
   }
 
   return (
@@ -70,14 +69,14 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
       <div className="author">Author: {blog.author}</div>
       <div className="url">Url: {blog.url}</div>
       <div className="likes">
-        Likes: {likes}
+        Likes: {blog.likes}
         <LikeButton id={blog.id} handleLikes={handleLikes} />
       </div>
       <div style={showForCurrentUser}>
         <button
           className="deletebutton"
           data-blogid={blog.id}
-          onClick={handleDelete}
+          onClick={handleRemove}
         >
           Delete
         </button>
@@ -87,8 +86,6 @@ const BlogDetails = ({ blog, incrementLikes, handleDelete, user }) => {
 }
 BlogDetails.propTypes = {
   blog: PropTypes.object.isRequired,
-  incrementLikes: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
   user: PropTypes.object,
 }
 

@@ -61,32 +61,9 @@ const App = () => {
     dispatch(showNotification("Logged out!", "info"))
   }
 
-  // async function removeBlog(event) {
-  //   const id = event.target.dataset.blogid
-  //   if (window.confirm(`Do you want to delete blog  ${id}?`)) {
-  //     await blogService.remove(id, user.token)
-  //     setBlogs(sortBlogsByLikes(blogs.filter((blog) => blog.id !== id)))
-  //   }
-  // }
-
-  // async function incrementLikes(id, updateData) {
-  //   // NOTE: we don't want authentication for likes!
-  //   const updatedBlog = await blogService.update(id, updateData)
-  //   //  update the blogs list with the updated likes
-  //   let updatedBlogs = blogs.map((blog) =>
-  //     blog.id === updatedBlog.id ? updatedBlog : blog
-  //   )
-  //   setBlogs(sortBlogsByLikes(updatedBlogs))
-  //   return updatedBlog
-  // }
-
-  // function sortBlogsByLikes(blogs) {
-  //   // Is this really the way to sort arrays in Javascript?
-  //   // I would rather perhaps use lodash
-  //   return [...blogs].sort((b1, b2) =>
-  //     b1.likes < b2.likes ? 1 : b1.likes > b2.likes ? -1 : 0
-  //   )
-  // }
+  function sortByLikes(a, b) {
+    return a.likes < b.likes ? 1 : a.likes > b.likes ? -1 : 0
+  }
 
   // These functions don't feel good
   // How to do this in an elefant way?
@@ -111,7 +88,6 @@ const App = () => {
       </Togglable>
     )
   }
-  // My react components start turning into functions... not cool?
   function showGreeting() {
     return (
       <div>
@@ -130,14 +106,8 @@ const App = () => {
       {user && showBlogForm()}
 
       <h2>Blogs</h2>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          // incrementLikes={incrementLikes}
-          // handleDelete={removeBlog}
-          user={user}
-        />
+      {[...blogs].sort(sortByLikes).map((blog) => (
+        <Blog key={blog.id} blog={blog} user={user} />
       ))}
     </div>
   )

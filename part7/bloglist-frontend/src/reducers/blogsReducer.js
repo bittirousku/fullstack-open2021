@@ -9,6 +9,12 @@ const blogsReducer = (state = [], action) => {
       return action.data
     case "ADD_BLOG":
       return state.concat(action.data)
+    case "REMOVE_BLOG":
+      return state.filter((blog) => blog.id !== action.data.blogId)
+    case "LIKE_BLOG":
+      return state.map((blog) =>
+        blog.id === action.data.updatedBlog.id ? action.data.updatedBlog : blog
+      )
     default:
       return state
   }
@@ -35,6 +41,29 @@ export function create(newBlog, user) {
     dispatch({
       type: "ADD_BLOG",
       data: created,
+    })
+  }
+}
+
+export function removeBlog(blogId, user) {
+  return async (dispatch) => {
+    if (window.confirm(`Do you want to delete blog  ${blogId}?`)) {
+      await blogService.remove(blogId, user.token)
+    }
+    dispatch({
+      type: "REMOVE_BLOG",
+      data: { blogId },
+    })
+  }
+}
+
+export function likeBlog(blogId) {
+  return async (dispatch) => {
+    const updateData = { likes: 1 } // this doesn't really matter; backend will just increment
+    const updatedBlog = await blogService.update(blogId, updateData)
+    dispatch({
+      type: "LIKE_BLOG",
+      data: { updatedBlog },
     })
   }
 }
