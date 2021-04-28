@@ -1,7 +1,7 @@
-import React, { useState, useImperativeHandle } from "react"
+import React, { useState } from "react"
 import PropTypes from "prop-types"
 
-const Togglable = React.forwardRef((props, ref) => {
+const Togglable = (props) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? "none" : "" }
@@ -12,27 +12,22 @@ const Togglable = React.forwardRef((props, ref) => {
     setVisible(!visible)
   }
 
-  // This here exposes `toggleVisibility` to the parent level
-  useImperativeHandle(ref, () => {
-    return {
-      toggleVisibility,
-    }
-  })
-
   return (
     <div>
       <div style={hideWhenVisible}>
         <button onClick={toggleVisibility}>{props.buttonLabel}</button>
       </div>
       <div style={showWhenVisible} className="togglableContent">
-        {props.children}
+        {/* Using 'function as child' pattern to pass the function to a child*/}
+        {/* https://medium.com/merrickchristensen/function-as-child-components-5f3920a9ace9 */}
+        {props.children(toggleVisibility)}
         <button onClick={toggleVisibility}>
           {props.cancelButtonLabel || "cancel"}
         </button>
       </div>
     </div>
   )
-}) // Note that React.forwardRef is a function call!
+}
 
 Togglable.displayName = "Togglable"
 Togglable.propTypes = {

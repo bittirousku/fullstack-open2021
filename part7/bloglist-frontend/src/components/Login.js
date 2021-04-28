@@ -16,7 +16,7 @@ const Login = ({
           <input
             id="username"
             type="text"
-            value={username} // why does react want this here? It works fine without...
+            value={username}
             name="Username"
             onChange={handleUsername}
           />

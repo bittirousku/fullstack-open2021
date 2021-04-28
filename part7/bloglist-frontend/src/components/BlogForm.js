@@ -1,10 +1,16 @@
 import React, { useState } from "react"
 
-const BlogForm = ({ addBlog }) => {
-  // Form state, would be better as an object:
+import { useDispatch } from "react-redux"
+import { showNotification } from "../reducers/notificationReducer"
+import { create } from "../reducers/blogsReducer"
+
+const BlogForm = (props) => {
+  // Form state
   const [blogTitle, setblogTitle] = useState("")
   const [blogAuthor, setblogAuthor] = useState("")
   const [blogUrl, setblogUrl] = useState("")
+
+  const dispatch = useDispatch()
 
   // This makes me laugh
   // Essentially this is a Switch statement
@@ -12,6 +18,12 @@ const BlogForm = ({ addBlog }) => {
     event.target.name === "author" && setblogAuthor(event.target.value)
     event.target.name === "title" && setblogTitle(event.target.value)
     event.target.name === "url" && setblogUrl(event.target.value)
+  }
+
+  async function addBlog(newBlog) {
+    dispatch(create(newBlog, props.user))
+    props.toggleVisibility()
+    dispatch(showNotification(`You added '${newBlog.content}'`, "info"))
   }
 
   async function onSubmit(event) {
