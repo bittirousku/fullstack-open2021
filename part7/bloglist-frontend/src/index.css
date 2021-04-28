@@ -1,0 +1,15 @@
+.error {
+    color: red;
+    border: red;
+    background-color: lightgrey;
+    border-style: solid;
+    border-radius: 5px;
+  }
+
+.info {
+color: green;
+border: green;
+background-color: lightgrey;
+border-style: solid;
+border-radius: 5px;
+}
