@@ -1,8 +1,8 @@
 /* eslint-disable no-debugger */
 import React, { useEffect } from "react"
-import Blog from "./components/Blog"
 
 import Login from "./components/Login"
+import BlogList from "./components/BlogList"
 import BlogForm from "./components/BlogForm"
 import Notification from "./components/Notification"
 import Togglable from "./components/Togglable"
@@ -20,17 +20,12 @@ const App = () => {
     dispatch(initializeBlogs())
   }, [dispatch])
 
-  const blogs = useSelector((state) => state.blogs)
   const user = useSelector((state) => state.login)
 
   // Get the token (if it exists) and set it as the App state
   useEffect(() => {
     dispatch(loginByExistingToken())
   }, [])
-
-  function sortByLikes(a, b) {
-    return a.likes < b.likes ? 1 : a.likes > b.likes ? -1 : 0
-  }
 
   function handleLogout() {
     dispatch(logout())
@@ -69,10 +64,7 @@ const App = () => {
       <br />
       {user && showBlogForm()}
 
-      <h2>Blogs</h2>
-      {[...blogs].sort(sortByLikes).map((blog) => (
-        <Blog key={blog.id} blog={blog} user={user} />
-      ))}
+      <BlogList />
     </div>
   )
 }

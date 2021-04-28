@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { useDispatch } from "react-redux"
 
-import { showNotification } from "../reducers/notificationReducer"
 import { loginByCredentials } from "../reducers/loginReducer"
 
 const Login = () => {
@@ -12,13 +11,8 @@ const Login = () => {
 
   function handleLogin(event) {
     event.preventDefault()
-    try {
-      console.log("logging in with", username, password)
-      dispatch(loginByCredentials(username, password))
-      console.log("Login succeeded!")
-    } catch (err) {
-      dispatch(showNotification("Wrong credentials", "error"))
-    }
+    console.log("logging in with", username, password)
+    dispatch(loginByCredentials(username, password))
     setUsername("")
     setPassword("")
   }

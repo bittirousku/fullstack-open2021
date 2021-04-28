@@ -1,4 +1,5 @@
 import loginService from "../services/login"
+import { showNotification } from "./notificationReducer"
 
 const loginReducer = (state = {}, action) => {
   console.log("state now: ", state)
@@ -8,6 +9,7 @@ const loginReducer = (state = {}, action) => {
     case "SET_USER": {
       return action.data.user
     }
+
     default:
       return state
   }
@@ -15,13 +17,21 @@ const loginReducer = (state = {}, action) => {
 
 export function loginByCredentials(username, password) {
   return async (dispatch) => {
-    const user = await loginService.login({ username, password })
-    // Should the localStorage manipulation be done here or in the switch block?
-    window.localStorage.setItem("loggedBlogger", JSON.stringify(user))
-    dispatch({
-      type: "SET_USER",
-      data: { user },
-    })
+    // How to properly propagate errors from here?
+    try {
+      const user = await loginService.login({ username, password })
+      // Should the localStorage manipulation be done here or in the switch block?
+      window.localStorage.setItem("loggedBlogger", JSON.stringify(user))
+      dispatch({
+        type: "SET_USER",
+        data: { user },
+      })
+      // FIXME: I don't like this at all - what is the proper way to propagate
+      // errors from here and handle them somewhere else?
+      dispatch(showNotification(`Welcome ${user.name}!`))
+    } catch (err) {
+      dispatch(showNotification("Wrong credentials!", "error"))
+    }
   }
 }
 
