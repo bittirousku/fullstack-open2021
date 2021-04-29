@@ -72,7 +72,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <Navigation user={user} handleLogout={handleLogout} />
       <Notification />
       <h1>Blog service</h1>
