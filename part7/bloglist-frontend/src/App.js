@@ -11,6 +11,7 @@ import Notification from "./components/Notification"
 import Togglable from "./components/Togglable"
 import UserList from "./components/UserList"
 import User from "./components/User"
+import Blog from "./components/Blog"
 
 import { showNotification } from "./reducers/notificationReducer"
 import { initializeBlogs } from "./reducers/blogsReducer"
@@ -26,19 +27,27 @@ const App = () => {
     dispatch(initializeUsers())
   }, [dispatch])
 
-  const user = useSelector((state) => state.login)
-
-  // TODO: where to put this routing to a single user? Here? User.js?
-  const userMatch = useRouteMatch("/users/:id")
-  const users = useSelector((state) => state.users)
-  const matchedUser = userMatch
-    ? users.find((user) => user.id === userMatch.params.id)
-    : null
-
   // Get the token (if it exists) and set it as the App state
   useEffect(() => {
     dispatch(loginByExistingToken())
   }, [])
+
+  const user = useSelector((state) => state.login)
+  const users = useSelector((state) => state.users)
+  const blogs = useSelector((state) => state.blogs)
+
+  // Where to put these route matchers? Here?
+  // Get user for a match
+  const userMatch = useRouteMatch("/users/:id")
+  const matchedUser = userMatch
+    ? users.find((user) => user.id === userMatch.params.id)
+    : null
+
+  // Get blogs for a match
+  const blogMatch = useRouteMatch("/blogs/:id")
+  const matchedBlog = blogMatch
+    ? blogs.find((blog) => blog.id === blogMatch.params.id)
+    : null
 
   function handleLogout() {
     dispatch(logout())
@@ -80,6 +89,9 @@ const App = () => {
       <Switch>
         <Route path="/users/:id">
           <User user={matchedUser} />
+        </Route>
+        <Route path="/blogs/:id">
+          <Blog blog={matchedBlog} user={user} />
         </Route>
         <Route path="/users">{user && <UserList />}</Route>
         <Route path="/">

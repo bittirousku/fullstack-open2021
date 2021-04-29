@@ -1,17 +1,20 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-debugger */
 import React, { useState, useEffect } from "react"
 import PropTypes from "prop-types"
 
 import { useDispatch } from "react-redux"
+import { useHistory } from "react-router-dom"
 
 import { removeBlog, likeBlog } from "../reducers/blogsReducer"
 
 const Blog = ({ blog, user }) => {
-  const [detailsVisible, setDetailsVisible] = useState(false)
-
-  function handleView() {
-    console.log("visibility toggled to", !detailsVisible)
-    setDetailsVisible(!detailsVisible)
+  // IMPORTANT!
+  // When refreshing or going via direct link
+  // the blogs state is not yet populated from the server
+  // This prevents errors from showing
+  if (!blog) {
+    return null
   }
 
   const blogStyle = {
@@ -26,12 +29,13 @@ const Blog = ({ blog, user }) => {
     backgroundColor: "lightgrey",
   }
 
+  console.log(blog)
   return (
-    <div className="blogentry" style={blogStyle}>
-      <div className="blogtitlebar" onClick={handleView} style={headerStyle}>
+    <div>
+      <h2>
         {blog.title} by {blog.author}
-      </div>
-      {detailsVisible && <BlogDetails blog={blog} user={user} />}
+      </h2>
+      {user && <BlogDetails blog={blog} user={user} />}
     </div>
   )
 }
@@ -40,6 +44,7 @@ const BlogDetails = ({ blog, user }) => {
   const [visible, setVisible] = useState(false)
 
   const dispatch = useDispatch()
+  const history = useHistory()
 
   // This part was problematic, as the `blog` didn't have the populated user data
   // from MongoDB at first. This is fixed with a dirty hack in blogsReducer.create
@@ -57,6 +62,7 @@ const BlogDetails = ({ blog, user }) => {
   function handleRemove(event) {
     const id = event.target.dataset.blogid
     dispatch(removeBlog(id, user))
+    history.push("/blogs")
   }
 
   function handleLikes(event) {
@@ -67,11 +73,14 @@ const BlogDetails = ({ blog, user }) => {
   return (
     <div className="blogdetails">
       <div className="author">Author: {blog.author}</div>
-      <div className="url">Url: {blog.url}</div>
+      <div className="url">
+        Url: <a href={blog.url}>{blog.url}</a>
+      </div>
       <div className="likes">
         Likes: {blog.likes}
         <LikeButton id={blog.id} handleLikes={handleLikes} />
       </div>
+      <div>Added by {blog.user.username}</div>
       <div style={showForCurrentUser}>
         <button
           className="deletebutton"

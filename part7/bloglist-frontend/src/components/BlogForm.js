@@ -1,6 +1,8 @@
 import React, { useState } from "react"
 
 import { useDispatch } from "react-redux"
+import { useHistory } from "react-router-dom"
+
 import { showNotification } from "../reducers/notificationReducer"
 import { create } from "../reducers/blogsReducer"
 
@@ -11,6 +13,7 @@ const BlogForm = (props) => {
   const [blogUrl, setblogUrl] = useState("")
 
   const dispatch = useDispatch()
+  const history = useHistory()
 
   // This makes me laugh
   // Essentially this is a Switch statement
@@ -23,7 +26,8 @@ const BlogForm = (props) => {
   async function addBlog(newBlog) {
     dispatch(create(newBlog, props.user))
     props.toggleVisibility()
-    dispatch(showNotification(`You added '${newBlog.content}'`, "info"))
+    dispatch(showNotification(`You added '${newBlog.title}'`, "info"))
+    history.push("/")
   }
 
   async function onSubmit(event) {

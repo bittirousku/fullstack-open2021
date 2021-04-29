@@ -1,11 +1,9 @@
 import React from "react"
 import { useSelector } from "react-redux"
-
-import Blog from "./Blog"
+import { Link } from "react-router-dom"
 
 export const BlogList = () => {
   const blogs = useSelector((state) => state.blogs)
-  const user = useSelector((state) => state.login)
 
   function sortByLikes(a, b) {
     return a.likes < b.likes ? 1 : a.likes > b.likes ? -1 : 0
@@ -15,7 +13,11 @@ export const BlogList = () => {
     <div>
       <h2>Blogs</h2>
       {[...blogs].sort(sortByLikes).map((blog) => (
-        <Blog key={blog.id} blog={blog} user={user} />
+        <p key={blog.id}>
+          <Link to={`/blogs/${blog.id}`}>
+            {blog.title} by {blog.author}
+          </Link>
+        </p>
       ))}
     </div>
   )
