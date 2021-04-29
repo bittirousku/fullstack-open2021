@@ -1,0 +1,10 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imtla2tvbmUiLCJpZCI6IjYwODAxNTMzY2FjMTBkOWFiMzg3Yzc3MyIsImlhdCI6MTYxOTAwODM0Mn0.C3-jqDSX3x6oPF8oBiGgP_yhvfmpbiA0pNaa8aTgTts
+
+{
+    "title": "elämä ja teot",
+    "user": "60801533cac10d9ab387c773",
+    "url": "wwww.fi",
+    "likes": 0
+}
