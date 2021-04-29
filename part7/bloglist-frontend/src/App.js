@@ -2,7 +2,7 @@
 /* eslint-disable no-debugger */
 import React, { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { Switch, Route, useRouteMatch } from "react-router-dom"
+import { Switch, Route, useRouteMatch, Redirect } from "react-router-dom"
 
 import Login from "./components/Login"
 import BlogList from "./components/BlogList"
@@ -12,6 +12,7 @@ import Togglable from "./components/Togglable"
 import UserList from "./components/UserList"
 import User from "./components/User"
 import Blog from "./components/Blog"
+import Navigation from "./components/Navigation"
 
 import { showNotification } from "./reducers/notificationReducer"
 import { initializeBlogs } from "./reducers/blogsReducer"
@@ -69,22 +70,15 @@ const App = () => {
       </Togglable>
     )
   }
-  function showGreeting() {
-    return (
-      <div>
-        Hello {user.name}! <button onClick={handleLogout}>Logout</button>
-      </div>
-    )
-  }
 
   return (
     <div>
-      <h1>Blog service</h1>
+      <Navigation user={user} handleLogout={handleLogout} />
       <Notification />
+      <h1>Blog service</h1>
 
-      {user === null ? showLogin() : showGreeting()}
+      {user === null ? showLogin() : showBlogForm()}
       <br />
-      {user && showBlogForm()}
 
       <Switch>
         <Route path="/users/:id">
@@ -93,8 +87,11 @@ const App = () => {
         <Route path="/blogs/:id">
           <Blog blog={matchedBlog} user={user} />
         </Route>
-        <Route path="/users">{user && <UserList />}</Route>
-        <Route path="/">
+        <Route path="/users">
+          {user ? <UserList /> : <Redirect to="/login" />}
+        </Route>
+
+        <Route path="/blogs">
           <BlogList />
         </Route>
       </Switch>
