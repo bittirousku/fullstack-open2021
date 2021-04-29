@@ -35,11 +35,6 @@ blogsRouter.post(
 blogsRouter.patch("/:id", async (request, response) => {
   // We should not allow setting the likes value,
   // only incrementing it.
-  // const updatedBlog = await Blog.findByIdAndUpdate(
-  //   request.params.id,
-  //   { likes: request.body.likes },
-  //   { new: true }
-  // )
   if (!request.body.likes) {
     return response.status(400).send("Only incrementing likes is supported.")
   }
@@ -65,5 +60,30 @@ blogsRouter.delete(
     return response.status(204).end()
   }
 )
+blogsRouter.get("/:id/comments", async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  if (!blog.comments) {
+    blog.comments = []
+  }
+  return response.status(200).json(blog.comments)
+})
+
+blogsRouter.post("/:id/comments", async (request, response) => {
+  console.log("New comment received:", request.body)
+  if (!request.body) {
+    return response.status(401).send("Request body missing")
+  }
+  const blog = await Blog.findById(request.params.id)
+  if (!blog.comments) {
+    blog.comments = []
+  }
+  let newComment = {
+    content: request.body.content,
+    id: blog.comments.length + 1,
+  }
+  blog.comments = blog.comments.concat(newComment)
+  await blog.save()
+  return response.status(201).json(blog)
+})
 
 module.exports = blogsRouter

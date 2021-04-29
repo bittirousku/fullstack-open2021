@@ -27,11 +27,18 @@ const remove = async (id, token) => {
   return response.data
 }
 
+const comment = async (id, data) => {
+  const url = `${baseUrl}/${id}/comments`
+  const response = await axios.post(url, { content: data })
+  return response.data
+}
+
 const _getHeaderConfig = (token) => ({
   headers: { Authorization: `bearer ${token}` },
 })
 
 const blogService = {
+  comment,
   create,
   getAll,
   getOne,

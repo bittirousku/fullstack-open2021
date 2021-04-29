@@ -11,7 +11,7 @@ const blogsReducer = (state = [], action) => {
       return state.concat(action.data)
     case "REMOVE_BLOG":
       return state.filter((blog) => blog.id !== action.data.blogId)
-    case "LIKE_BLOG":
+    case "UPDATE_BLOG":
       return state.map((blog) =>
         blog.id === action.data.updatedBlog.id ? action.data.updatedBlog : blog
       )
@@ -62,7 +62,17 @@ export function likeBlog(blogId) {
     const updateData = { likes: 1 } // this doesn't really matter; backend will just increment
     const updatedBlog = await blogService.update(blogId, updateData)
     dispatch({
-      type: "LIKE_BLOG",
+      type: "UPDATE_BLOG",
+      data: { updatedBlog },
+    })
+  }
+}
+
+export function addComment(blogId, comment) {
+  return async (dispatch) => {
+    const updatedBlog = await blogService.comment(blogId, comment)
+    dispatch({
+      type: "UPDATE_BLOG",
       data: { updatedBlog },
     })
   }

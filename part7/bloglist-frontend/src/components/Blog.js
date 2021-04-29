@@ -6,7 +6,7 @@ import PropTypes from "prop-types"
 import { useDispatch } from "react-redux"
 import { useHistory } from "react-router-dom"
 
-import { removeBlog, likeBlog } from "../reducers/blogsReducer"
+import { removeBlog, likeBlog, addComment } from "../reducers/blogsReducer"
 
 const Blog = ({ blog, user }) => {
   // IMPORTANT!
@@ -89,6 +89,7 @@ const BlogDetails = ({ blog, user }) => {
         >
           Delete
         </button>
+        <CommentSection blog={blog} />
       </div>
     </div>
   )
@@ -104,6 +105,38 @@ const LikeButton = ({ id, handleLikes }) => {
       <button className="likebutton" data-blogid={id} onClick={handleLikes}>
         Like
       </button>
+    </>
+  )
+}
+
+const CommentSection = ({ blog }) => {
+  const [comment, setComment] = useState("")
+  const dispatch = useDispatch()
+
+  const handleCommentChange = (event) => {
+    setComment(event.target.value)
+  }
+
+  const submitComment = () => {
+    dispatch(addComment(blog.id, comment))
+  }
+
+  return (
+    <>
+      <h3>Comments</h3>
+      <form onSubmit={submitComment}>
+        <label>
+          <input value={comment} onChange={handleCommentChange}></input>
+        </label>
+        <button id="submit" type="submit">
+          add comment
+        </button>
+      </form>
+      <ul>
+        {blog.comments.map((comment) => (
+          <li key={comment.id}>{comment.content}</li>
+        ))}
+      </ul>
     </>
   )
 }
