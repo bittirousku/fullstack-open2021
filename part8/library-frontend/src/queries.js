@@ -9,13 +9,17 @@ export const ALL_AUTHORS = gql`
     }
   }
 `
-
+// NOTE: important to specify the `author` return values desired field
+// otherwise horrible errors will follow
 export const ALL_BOOKS = gql`
   query {
     allBooks {
       title
-      author
+      author {
+        name
+      }
       published
+      genres
     }
   }
 `
@@ -34,7 +38,9 @@ export const CREATE_BOOK = gql`
       genres: $genres
     ) {
       title
-      author
+      author {
+        name
+      }
       published
       genres
     }
@@ -46,6 +52,14 @@ export const SET_BIRTHYEAR = gql`
     editAuthor(name: $name, setBornTo: $birthYear) {
       name
       born
+    }
+  }
+`
+
+export const LOGIN = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      value
     }
   }
 `

@@ -6,7 +6,10 @@ import { useQuery } from "@apollo/client"
 
 const Books = (props) => {
   const [books, setBooks] = useState(null)
+  const [genres, setGenres] = useState(null)
+  const [genre, setGenre] = useState(null)
   const result = useQuery(ALL_BOOKS)
+  const [visibleBooks, setVisibleBooks] = useState(null)
 
   useEffect(() => {
     if (result.data) {
@@ -14,8 +17,31 @@ const Books = (props) => {
     }
   }, [result])
 
+  useEffect(() => {
+    // This looks ugly...how to improve?
+    if (books) {
+      if (genre) {
+        setVisibleBooks(books.filter((book) => book.genres.includes(genre)))
+      } else {
+        setVisibleBooks(books)
+      }
+    }
+  }, [books, genre])
+
+  useEffect(() => {
+    if (books) {
+      // Dedupe the nested array of genres
+      let genres = [...new Set([].concat(...books.map((book) => book.genres)))]
+      setGenres(genres)
+    }
+  }, [books])
+
   if (!props.show || !books) {
     return null
+  }
+
+  function handleGenre(event) {
+    setGenre(event.target.value)
   }
 
   return (
@@ -29,15 +55,33 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((a) => (
+          {visibleBooks.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              {/* There was `a.author` first, which resulted in horrible errors */}
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <GenreFilter genres={genres} handleGenre={handleGenre} />
+    </div>
+  )
+}
+
+export const GenreFilter = ({ genres, handleGenre }) => {
+  return (
+    <div>
+      {genres.map((genre) => (
+        <button key={genre} value={genre} onClick={(e) => handleGenre(e)}>
+          {genre}
+        </button>
+      ))}
+      <br />
+      <button value={null} onClick={(e) => handleGenre(e)}>
+        reset filter
+      </button>
     </div>
   )
 }
