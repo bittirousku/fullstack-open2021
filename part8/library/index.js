@@ -124,6 +124,7 @@ const resolvers = {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: (root, args) => {
+      console.log("allBooks")
       let filters = []
       if (args.author) {
         filters.push((b) => b.author === args.author)
@@ -133,11 +134,14 @@ const resolvers = {
       }
       return filters ? books.filter((b) => filters.every((f) => f(b))) : books
     },
-    allAuthors: () => authors,
+    allAuthors: () => {
+      return authors
+    },
   },
   Author: {
-    bookCount: () => {
-      return books.length
+    bookCount: (root) => {
+      let authorBookCount = books.filter((b) => b.author === root.name).length
+      return authorBookCount
     },
   },
   Mutation: {
@@ -147,9 +151,11 @@ const resolvers = {
       if (!authors.includes(args.author)) {
         authors = authors.concat({ name: args.author, id: uuid() })
       }
+      console.log("addBook")
       return newBook
     },
     editAuthor: (root, args) => {
+      console.log("editAuthor")
       let author = authors.find((a) => a.name === args.name)
       if (!author) {
         return null
