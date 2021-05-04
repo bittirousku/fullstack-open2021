@@ -7,11 +7,14 @@ const {
   gql,
   UserInputError,
   AuthenticationError,
+  PubSub,
 } = require("apollo-server")
 
 const Author = require("./models/Author")
 const Book = require("./models/Book")
 const User = require("./models/User")
+
+const pubsub = new PubSub()
 
 const MONGODB_URI = process.env.MONGODB_URI
 const JWT_SECRET = process.env.JWT_SECRET
@@ -156,6 +159,10 @@ const typeDefs = gql`
     createUser(username: String!, favoriteGenre: String!): User
     login(username: String!, password: String!): Token
   }
+
+  type Subscription {
+    bookAdded: Book!
+  }
 `
 
 const resolvers = {
@@ -178,7 +185,7 @@ const resolvers = {
     },
     allAuthors: () => {
       console.log("allAuthors")
-      return Author.find({})
+      return Author.find({}).populate("books")
     },
     me: (root, args, context) => {
       console.log("me", context.currentUser)
@@ -187,8 +194,11 @@ const resolvers = {
   },
   Author: {
     bookCount: (root) => {
-      let authorBookCount = books.filter((b) => b.author === root.name).length
-      return authorBookCount
+      // TODO:!
+      console.log("bookCount", root)
+      return root.books.length
+      // let authorBookCount = books.filter((b) => b.author === root.name).length
+      // return authorBookCount
     },
   },
   Mutation: {
@@ -201,20 +211,25 @@ const resolvers = {
         throw new UserInputError("Too short title", { invalidArgs: args })
       }
 
+      // Create a new author if it doesn't exist
       console.log("addBook args", args)
       let author = await Author.findOne({ name: args.author })
       console.log("author", author)
       if (!author) {
         author = new Author({ name: args.author })
-        await author.save()
       }
+      // Create a new book with author reference
       let newBook = new Book({ ...args, author: author }) // add whole author, not only author.id
       console.log("newBook", newBook)
       try {
+        author.books = author.books.concat(newBook)
         await newBook.save()
+        await author.save()
       } catch (err) {
         throw new UserInputError(err.message, { invalidArgs: args })
       }
+
+      pubsub.publish("BOOK_ADDED", { bookAdded: newBook })
 
       return newBook
     },
@@ -260,6 +275,9 @@ const resolvers = {
       return { value: jwt.sign(userForToken, JWT_SECRET) }
     },
   },
+  Subscription: {
+    bookAdded: { subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]) },
+  },
 }
 
 const server = new ApolloServer({
@@ -275,6 +293,7 @@ const server = new ApolloServer({
   },
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`)
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`)
 })

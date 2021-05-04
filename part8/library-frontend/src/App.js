@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useApolloClient, useLazyQuery } from "@apollo/client"
+import { useApolloClient, useLazyQuery, useSubscription } from "@apollo/client"
 
 import Authors from "./components/Authors"
 import Books from "./components/Books"
@@ -8,7 +8,7 @@ import LoginForm from "./components/LoginForm"
 import Notify from "./components/Notify"
 import Recommendations from "./components/Recommendations"
 
-import { ME } from "./queries"
+import { ME, BOOK_ADDED } from "./queries"
 
 const App = () => {
   const [page, setPage] = useState("authors")
@@ -42,6 +42,15 @@ const App = () => {
       setCurrentUser(userQueryResult.data.me)
     }
   }, [userQueryResult.data])
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      window.alert(
+        `Subscription alert (new book added): "${subscriptionData.data.bookAdded.title}"`
+      )
+      console.log("Subcription alert", subscriptionData)
+    },
+  })
 
   const notify = (message) => {
     setErrorMessage(message)
