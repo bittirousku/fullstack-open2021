@@ -194,11 +194,8 @@ const resolvers = {
   },
   Author: {
     bookCount: (root) => {
-      // TODO:!
       console.log("bookCount", root)
       return root.books.length
-      // let authorBookCount = books.filter((b) => b.author === root.name).length
-      // return authorBookCount
     },
   },
   Mutation: {
