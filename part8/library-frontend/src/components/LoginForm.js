@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useMutation } from "@apollo/client"
 import { LOGIN } from "../queries"
 
-const LoginForm = ({ setError, setToken, show }) => {
+const LoginForm = ({ setError, setToken, show, setPage, getUser }) => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
@@ -16,6 +16,7 @@ const LoginForm = ({ setError, setToken, show }) => {
     if (result.data) {
       const token = result.data.login.value
       setToken(token)
+      getUser() // important to get ther user here too
       localStorage.setItem("library-user-token", token)
     }
   }, [result.data]) // eslint-disable-line
@@ -29,9 +30,7 @@ const LoginForm = ({ setError, setToken, show }) => {
     login({ variables: { username, password } })
     setUsername("")
     setPassword("")
-    // TODO: remove the login dialog from view after logging in
-    // history.push("/") would switch the view to the main page
-    // ...but we are not using react-router here, so what to do?
+    setPage("authors")
   }
 
   return (

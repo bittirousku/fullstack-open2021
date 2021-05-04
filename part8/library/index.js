@@ -181,6 +181,7 @@ const resolvers = {
       return Author.find({})
     },
     me: (root, args, context) => {
+      console.log("me", context.currentUser)
       return context.currentUser
     },
   },

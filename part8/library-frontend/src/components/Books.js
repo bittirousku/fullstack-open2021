@@ -12,7 +12,6 @@ const Books = (props) => {
   const [visibleBooks, setVisibleBooks] = useState(null)
 
   useEffect(() => {
-    console.log("getBooksResult", getBooksResult)
     if (getBooksResult.data) {
       setBooks(getBooksResult.data.allBooks)
     }

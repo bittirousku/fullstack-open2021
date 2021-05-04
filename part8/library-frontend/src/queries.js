@@ -12,8 +12,8 @@ export const ALL_AUTHORS = gql`
 // NOTE: important to specify the `author` return values desired field
 // otherwise horrible errors will follow
 export const ALL_BOOKS = gql`
-  query {
-    allBooks {
+  query allBooks($genre: String) {
+    allBooks(genre: $genre) {
       title
       author {
         name
@@ -66,6 +66,9 @@ export const LOGIN = gql`
 
 export const ME = gql`
   query {
-    me
+    me {
+      username
+      favoriteGenre
+    }
   }
 `

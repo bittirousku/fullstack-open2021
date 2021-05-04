@@ -19,11 +19,20 @@ const App = () => {
   const client = useApolloClient()
 
   useEffect(() => {
-    setToken(localStorage.getItem("library-user-token"))
-  }, [token])
+    if (token) {
+      // Important to make this conditional
+      // otherwise the user object would not get fetched
+      // the first time the user is logged in, only after refresh
+      setToken(localStorage.getItem("library-user-token"))
+      getUser()
+    }
+  }, [token]) // eslint-disable-line
 
-  // TODO: how to fetch the current user data?
-  console.log(userQueryResult)
+  useEffect(() => {
+    if (userQueryResult.data) {
+      setCurrentUser(userQueryResult.data.me)
+    }
+  }, [userQueryResult])
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -40,6 +49,8 @@ const App = () => {
     setPage("authors")
   }
 
+  console.log("userQueryResult.data", userQueryResult.data)
+  console.log("currentUser", currentUser)
   return (
     <div>
       <div>
@@ -50,6 +61,8 @@ const App = () => {
           <button onClick={() => setPage("recommend")}>recommend</button>
         )}
         {token && <button onClick={logout}>Logout</button>}
+
+        {currentUser && <i> {currentUser.username} logged in</i>}
         {!token && <button onClick={() => setPage("login")}>Login</button>}
       </div>
 
@@ -59,12 +72,16 @@ const App = () => {
       {page === "books" && <Books show={page === "books"} token={token} />}
 
       <NewBook show={page === "add"} />
-      <Recommendations show={page === "recommend"} />
+      {currentUser && page === "recommend" && (
+        <Recommendations show={page === "recommend"} user={currentUser} />
+      )}
 
       <LoginForm
         show={page === "login"}
         setToken={setToken}
         setError={notify}
+        setPage={setPage}
+        getUser={getUser}
       />
     </div>
   )
