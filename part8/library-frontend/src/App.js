@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useApolloClient, useLazyQuery } from "@apollo/client"
+import { useApolloClient, useLazyQuery, useQuery } from "@apollo/client"
 
 import Authors from "./components/Authors"
 import Books from "./components/Books"
@@ -13,17 +13,27 @@ import { ME } from "./queries"
 const App = () => {
   const [page, setPage] = useState("authors")
   const [token, setToken] = useState(null)
-  const [getUser, userQueryResult] = useLazyQuery(ME)
   const [currentUser, setCurrentUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [getUser, userQueryResult] = useLazyQuery(ME, {
+    fetchPolicy: "no-cache", // SUPER IMPORTANT
+  })
+  // Without the no-cache policy, the result would end up floating
+  // around in a zombie state (inside `userQueryResult`), and the
+  // user object could not be fetched without a manual refresh
+  // STRANGE
+  // TODO: find out the reason for this nasty behaviour
+
   const client = useApolloClient()
+
+  console.log("RENDERING THE MAIN APP")
+  useEffect(() => {
+    setToken(localStorage.getItem("library-user-token"))
+  }, [token])
 
   useEffect(() => {
     if (token) {
-      // Important to make this conditional
-      // otherwise the user object would not get fetched
-      // the first time the user is logged in, only after refresh
-      setToken(localStorage.getItem("library-user-token"))
+      console.log("I'm doing getUser and the token is", token)
       getUser()
     }
   }, [token]) // eslint-disable-line
@@ -32,7 +42,7 @@ const App = () => {
     if (userQueryResult.data) {
       setCurrentUser(userQueryResult.data.me)
     }
-  }, [userQueryResult])
+  }, [userQueryResult.data])
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -49,6 +59,8 @@ const App = () => {
     setPage("authors")
   }
 
+  console.log("token", token)
+  console.log("localStorage token", localStorage.getItem("library-user-token"))
   console.log("userQueryResult.data", userQueryResult.data)
   console.log("currentUser", currentUser)
   return (
@@ -81,7 +93,6 @@ const App = () => {
         setToken={setToken}
         setError={notify}
         setPage={setPage}
-        getUser={getUser}
       />
     </div>
   )
