@@ -8,14 +8,15 @@ const Books = (props) => {
   const [books, setBooks] = useState(null)
   const [genres, setGenres] = useState(null)
   const [genre, setGenre] = useState(null)
-  const result = useQuery(ALL_BOOKS)
+  const getBooksResult = useQuery(ALL_BOOKS)
   const [visibleBooks, setVisibleBooks] = useState(null)
 
   useEffect(() => {
-    if (result.data) {
-      setBooks(result.data.allBooks)
+    console.log("getBooksResult", getBooksResult)
+    if (getBooksResult.data) {
+      setBooks(getBooksResult.data.allBooks)
     }
-  }, [result])
+  }, [getBooksResult])
 
   useEffect(() => {
     // This looks ugly...how to improve?
@@ -36,7 +37,9 @@ const Books = (props) => {
     }
   }, [books])
 
-  if (!props.show || !books) {
+  // Here was `!books` before - it resulted in the visibleBooks not being set
+  // before React tried to render the component
+  if (!props.show || !visibleBooks) {
     return null
   }
 

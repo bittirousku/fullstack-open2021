@@ -177,6 +177,7 @@ const resolvers = {
       return Book.find(filters).populate("author")
     },
     allAuthors: () => {
+      console.log("allAuthors")
       return Author.find({})
     },
     me: (root, args, context) => {

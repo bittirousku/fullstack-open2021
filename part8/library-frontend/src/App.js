@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useApolloClient } from "@apollo/client"
+import { useApolloClient, useLazyQuery } from "@apollo/client"
 
 import Authors from "./components/Authors"
 import Books from "./components/Books"
@@ -8,15 +8,22 @@ import LoginForm from "./components/LoginForm"
 import Notify from "./components/Notify"
 import Recommendations from "./components/Recommendations"
 
+import { ME } from "./queries"
+
 const App = () => {
   const [page, setPage] = useState("authors")
   const [token, setToken] = useState(null)
+  const [getUser, userQueryResult] = useLazyQuery(ME)
+  const [currentUser, setCurrentUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const client = useApolloClient()
 
   useEffect(() => {
     setToken(localStorage.getItem("library-user-token"))
   }, [token])
+
+  // TODO: how to fetch the current user data?
+  console.log(userQueryResult)
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -27,6 +34,7 @@ const App = () => {
 
   const logout = () => {
     setToken(null)
+    setCurrentUser(null)
     localStorage.clear()
     client.resetStore()
     setPage("authors")
@@ -48,7 +56,7 @@ const App = () => {
       {!token && <Notify errorMessage={errorMessage} />}
       <Authors show={page === "authors"} token={token} />
 
-      <Books show={page === "books"} token={token} />
+      {page === "books" && <Books show={page === "books"} token={token} />}
 
       <NewBook show={page === "add"} />
       <Recommendations show={page === "recommend"} />
