@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useApolloClient, useLazyQuery, useQuery } from "@apollo/client"
+import { useApolloClient, useLazyQuery } from "@apollo/client"
 
 import Authors from "./components/Authors"
 import Books from "./components/Books"
@@ -21,8 +21,7 @@ const App = () => {
   // Without the no-cache policy, the result would end up floating
   // around in a zombie state (inside `userQueryResult`), and the
   // user object could not be fetched without a manual refresh
-  // STRANGE
-  // TODO: find out the reason for this nasty behaviour
+  // TODO: find out the reason for this behaviour
 
   const client = useApolloClient()
 

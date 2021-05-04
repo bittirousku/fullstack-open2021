@@ -6,7 +6,9 @@ import { ALL_BOOKS } from "../queries"
 const Recommendations = (props) => {
   // filter the books with a new query
   const [books, setBooks] = useState(null)
-  const [getBooks, getBooksResult] = useLazyQuery(ALL_BOOKS)
+  const [getBooks, getBooksResult] = useLazyQuery(ALL_BOOKS, {
+    fetchPolicy: "no-cache", // SUPER IMPORTANT, otherwise the list will not update without a refresh
+  })
 
   useEffect(() => {
     if (getBooksResult.data) {
@@ -18,7 +20,7 @@ const Recommendations = (props) => {
     if (props.user) {
       getBooks({ variables: { genre: props.user.favoriteGenre } })
     }
-  }, [props.user, getBooks])
+  }, [props.user]) // eslint-disable-line
 
   if (!props.show || !books) {
     return null
