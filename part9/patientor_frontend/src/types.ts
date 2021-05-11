@@ -34,12 +34,13 @@ interface BaseEntry {
   diagnosisCodes?: Array<Diagnosis["code"]>
 }
 
-interface HealthCheckEntry extends BaseEntry {
+// TODO: why do I need to export these to work in PatientView entry components?
+export interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck"
   healthCheckRating: HealthCheckRating
 }
 
-interface HospitalEntry extends BaseEntry {
+export interface HospitalEntry extends BaseEntry {
   type: "Hospital"
   discharge: {
     date: string
@@ -47,7 +48,7 @@ interface HospitalEntry extends BaseEntry {
   }
 }
 
-interface OccupationalHealthcareEntry extends BaseEntry {
+export interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare"
   employerName: string
   sickLeave: {

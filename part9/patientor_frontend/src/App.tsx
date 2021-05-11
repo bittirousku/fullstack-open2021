@@ -5,30 +5,44 @@ import { Button, Divider, Header, Container } from "semantic-ui-react"
 
 import { apiBaseUrl } from "./constants"
 import { useStateValue } from "./state"
-import { Patient } from "./types"
+import { Patient, Diagnosis } from "./types"
 
 import PatientListPage from "./PatientListPage"
 import PatientView from "./components/PatientView"
 
-import { setPatientList } from "./state/reducer"
+import { setPatientList, setDiagnosisList } from "./state/reducer"
 
 const App = () => {
   const [, dispatch] = useStateValue()
+  async function fetchPatientList() {
+    try {
+      const { data: patientListFromApi } = await axios.get<Patient[]>(
+        `${apiBaseUrl}/patients`
+      )
+      dispatch(setPatientList(patientListFromApi))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  async function fetchDiagnosisList() {
+    try {
+      const { data: diagnosisListFromApi } = await axios.get<Diagnosis[]>(
+        `${apiBaseUrl}/diagnoses`
+      )
+      dispatch(setDiagnosisList(diagnosisListFromApi))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   React.useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`)
-
-    const fetchPatientList = async () => {
-      try {
-        const { data: patientListFromApi } = await axios.get<Patient[]>(
-          `${apiBaseUrl}/patients`
-        )
-        dispatch(setPatientList(patientListFromApi))
-      } catch (e) {
-        console.error(e)
-      }
-    }
     void fetchPatientList()
-  }, [dispatch])
+  }, [])
+
+  React.useEffect(() => {
+    void fetchDiagnosisList()
+  }, [])
 
   return (
     <div className="App">
@@ -41,7 +55,7 @@ const App = () => {
           <Divider hidden />
           <Switch>
             <Route path="/patients/:id">
-              <PatientView />
+              <PatientView fetchDiagnosisList={fetchDiagnosisList} />
             </Route>
             <Route path="/">
               <PatientListPage />
