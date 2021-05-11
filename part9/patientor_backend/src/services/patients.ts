@@ -1,6 +1,6 @@
 import { v1 as uuid } from "uuid"
 
-import initialData from "../../data/patients.json"
+import initialData from "../../data/patients"
 import { Patient, NonSensitivePatient, Fields, Gender } from "../types"
 
 let patientData: Patient[] = initialData
@@ -34,9 +34,10 @@ function parsePatientData({
     id: uuid(),
     name: parseString(name),
     dateOfBirth: parseDate(dateOfBirth),
-    ssn: parseString(ssn), // TODO: validate HETU
+    ssn: parseString(ssn),
     gender: parseGender(gender),
     occupation: parseString(occupation),
+    entries: [],
   }
 }
 

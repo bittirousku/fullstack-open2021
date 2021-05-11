@@ -17,9 +17,8 @@ patientRouter.get("/:id", (req, res) => {
   }
 })
 
-patientRouter.post('/', (req, res) => {
-  res.json(patientService.addPatient( req.body ));
-});
-
+patientRouter.post("/", (req, res) => {
+  res.json(patientService.addPatient(req.body))
+})
 
 export default patientRouter

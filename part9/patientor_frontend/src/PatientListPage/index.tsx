@@ -1,40 +1,43 @@
-import React from "react";
-import axios from "axios";
-import { Container, Table, Button } from "semantic-ui-react";
+import React from "react"
+import axios from "axios"
+import { Container, Table, Button } from "semantic-ui-react"
+import { Link } from "react-router-dom"
 
-import { PatientFormValues } from "../AddPatientModal/AddPatientForm";
-import AddPatientModal from "../AddPatientModal";
-import { Patient } from "../types";
-import { apiBaseUrl } from "../constants";
-import HealthRatingBar from "../components/HealthRatingBar";
-import { useStateValue } from "../state";
+import { PatientFormValues } from "../AddPatientModal/AddPatientForm"
+import AddPatientModal from "../AddPatientModal"
+import { Patient } from "../types"
+import { apiBaseUrl } from "../constants"
+import HealthRatingBar from "../components/HealthRatingBar"
+import { useStateValue } from "../state"
+import { addPatient } from "../state/reducer"
 
 const PatientListPage = () => {
-  const [{ patients }, dispatch] = useStateValue();
+  const [{ patients }, dispatch] = useStateValue()
 
-  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<string | undefined>();
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false)
+  const [error, setError] = React.useState<string | undefined>()
 
-  const openModal = (): void => setModalOpen(true);
+  const openModal = (): void => setModalOpen(true)
 
   const closeModal = (): void => {
-    setModalOpen(false);
-    setError(undefined);
-  };
+    setModalOpen(false)
+    setError(undefined)
+  }
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
       const { data: newPatient } = await axios.post<Patient>(
         `${apiBaseUrl}/patients`,
         values
-      );
-      dispatch({ type: "ADD_PATIENT", payload: newPatient });
-      closeModal();
+      )
+      dispatch(addPatient(newPatient))
+
+      closeModal()
     } catch (e) {
-      console.error(e.response?.data || 'Unknown Error');
-      setError(e.response?.data?.error || 'Unknown error');
+      console.error(e.response?.data || "Unknown Error")
+      setError(e.response?.data?.error || "Unknown error")
     }
-  };
+  }
 
   return (
     <div className="App">
@@ -53,7 +56,9 @@ const PatientListPage = () => {
         <Table.Body>
           {Object.values(patients).map((patient: Patient) => (
             <Table.Row key={patient.id}>
-              <Table.Cell>{patient.name}</Table.Cell>
+              <Table.Cell>
+                <Link to={`/patients/${patient.id}`}>{patient.name}</Link>
+              </Table.Cell>
               <Table.Cell>{patient.gender}</Table.Cell>
               <Table.Cell>{patient.occupation}</Table.Cell>
               <Table.Cell>
@@ -71,7 +76,7 @@ const PatientListPage = () => {
       />
       <Button onClick={() => openModal()}>Add New Patient</Button>
     </div>
-  );
-};
+  )
+}
 
-export default PatientListPage;
+export default PatientListPage
