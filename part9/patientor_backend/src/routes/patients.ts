@@ -4,7 +4,7 @@ import patientService from "../services/patients"
 const patientRouter = express.Router()
 
 patientRouter.get("/", (_req, res) => {
-  res.json(patientService.getEntries())
+  res.json(patientService.getPatients())
 })
 
 patientRouter.get("/:id", (req, res) => {
@@ -19,6 +19,10 @@ patientRouter.get("/:id", (req, res) => {
 
 patientRouter.post("/", (req, res) => {
   res.json(patientService.addPatient(req.body))
+})
+
+patientRouter.post("/:id/entries", (req, res) => {
+  res.json(patientService.addEntry(req.params.id, req.body))
 })
 
 export default patientRouter

@@ -34,7 +34,7 @@ interface HospitalEntry extends BaseEntry {
 interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare"
   employerName: string
-  sickLeave: {
+  sickLeave?: {
     startDate: string
     endDate: string
   }
@@ -64,6 +64,13 @@ export type Fields = {
   gender: unknown
   occupation: unknown
 }
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+  ? Omit<T, K>
+  : never
+
+export type EntryFields = UnionOmit<Entry, "id">
 
 export enum Gender {
   Male = "female",
