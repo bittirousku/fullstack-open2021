@@ -1,5 +1,8 @@
 import React, { useState } from "react"
 import { useParams } from "react-router"
+import axios from "axios"
+import { Grid, Button } from "semantic-ui-react"
+import { Field, Formik, Form } from "formik"
 
 import { useStateValue, State } from "../state"
 
@@ -10,8 +13,8 @@ import {
   OccupationalHealthcareEntry,
   HealthCheckEntry,
   HospitalEntry,
+  EntryFormValues,
 } from "../types"
-import axios from "axios"
 
 const PatientView = ({
   fetchDiagnosisList,
@@ -63,11 +66,6 @@ const PatientView = ({
     return null
   }
 
-  console.log(diagnoses)
-  console.log(currentPatient)
-  // console.log(Entry)
-  // eslint-disable-next-line no-debugger
-  // debugger
   return (
     <div>
       <h2>{currentPatient.name}</h2>
@@ -77,6 +75,7 @@ const PatientView = ({
       {currentPatient.entries.map((entry) => (
         <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
       ))}
+      <AddNewEntry />
     </div>
   )
 }
@@ -163,6 +162,109 @@ const OccupationalHealthcareEntryPart = ({
   entry: OccupationalHealthcareEntry
 }) => {
   return <div>Employer: {entry.employerName}</div>
+}
+
+// TODO: why are some of the components in the template in their own directories
+// instead of under `components/`?
+const AddNewEntry = () => {
+  async function onSubmit(values: EntryFormValues) {
+    try {
+      const patientID = "???" // TODO:!
+      const { data: newEntry } = await axios.post<Patient>(
+        `${apiBaseUrl}/patients/${patientID}/entries`,
+        values
+      )
+      console.log(newEntry)
+      // dispatch(addEntry(patientId, newEntry)) // TODO:!
+    } catch (e) {
+      console.error(e.response?.data || "Unknown Error")
+      // setError(e.response?.data?.error || "Unknown error")
+    }
+  }
+  function onCancel() {
+    console.log("eiei")
+  }
+  return (
+    <Formik
+      initialValues={{
+        description: "",
+        date: "",
+        specialist: "",
+        type: "Hospital",
+        discharge: { date: "", criteria: "" },
+      }}
+      onSubmit={onSubmit}
+      validate={(values) => {
+        const requiredError = "Field is required"
+        const errors: { [field: string]: string } = {}
+        if (!values.description) {
+          errors.description = requiredError
+        }
+        if (!values.date) {
+          errors.date = requiredError
+        }
+        if (!values.specialist) {
+          errors.specialist = requiredError
+        }
+        if (!values.type) {
+          errors.type = requiredError
+        }
+        // TODO: discharge
+        return errors
+      }}
+    >
+      {({ isValid, dirty }) => {
+        return (
+          <div>
+            <h3>Add new entry</h3>
+            <Form className="form ui">
+              <Field
+                label="Description"
+                placeholder="Description"
+                name="description"
+                // component={TextField}
+              />
+              <Field
+                label="Date"
+                placeholder="YYYY-MM-DD"
+                name="date"
+                // component={TextField}
+              />
+              <Field
+                label="specialist"
+                placeholder="specialist"
+                name="specialist"
+                // component={TextField}
+              />
+              <Field
+                label="Occupation"
+                placeholder="Occupation"
+                name="occupation"
+                // component={TextField}
+              />
+              <Grid>
+                <Grid.Column floated="left" width={5}>
+                  <Button type="button" onClick={onCancel} color="red">
+                    Cancel
+                  </Button>
+                </Grid.Column>
+                <Grid.Column floated="right" width={5}>
+                  <Button
+                    type="submit"
+                    floated="right"
+                    color="green"
+                    disabled={!dirty || !isValid}
+                  >
+                    Add
+                  </Button>
+                </Grid.Column>
+              </Grid>
+            </Form>
+          </div>
+        )
+      }}
+    </Formik>
+  )
 }
 
 export default PatientView

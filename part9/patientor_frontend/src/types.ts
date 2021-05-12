@@ -61,3 +61,10 @@ export type Entry =
   | HospitalEntry
   | OccupationalHealthcareEntry
   | HealthCheckEntry
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+  ? Omit<T, K>
+  : never
+
+export type EntryFormValues = UnionOmit<Entry, "id">
