@@ -7,6 +7,7 @@ import {
   OccupationalHealthcareEntry,
   HealthCheckEntry,
   HospitalEntry,
+  EntryType,
 } from "../types"
 
 const EntryDetails = ({
@@ -23,26 +24,23 @@ const EntryDetails = ({
   }
 
   switch (entry.type) {
-    case "Hospital":
+    case EntryType.Hospital:
       return (
         <div>
-          {" "}
           <BaseEntryPart entry={entry} diagnoses={diagnoses} />
           <HospitalEntryPart entry={entry} />
         </div>
       )
-    case "HealthCheck":
+    case EntryType.HealthCheck:
       return (
         <div>
-          {" "}
           <BaseEntryPart entry={entry} diagnoses={diagnoses} />
           <HealthCheckEntryPart entry={entry} />
         </div>
       )
-    case "OccupationalHealthcare":
+    case EntryType.OccupationalHealthcare:
       return (
         <div>
-          {" "}
           <BaseEntryPart entry={entry} diagnoses={diagnoses} />
           <OccupationalHealthcareEntryPart entry={entry} />
         </div>
