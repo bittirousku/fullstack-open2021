@@ -8,7 +8,7 @@ import { useStateValue } from "./state"
 import { Patient, Diagnosis } from "./types"
 
 import PatientListPage from "./PatientListPage"
-import PatientView from "./components/PatientView"
+import PatientView from "./PatientView"
 
 import { setPatientList, setDiagnosisList } from "./state/reducer"
 

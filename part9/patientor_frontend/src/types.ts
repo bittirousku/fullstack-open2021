@@ -68,3 +68,15 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown
   : never
 
 export type EntryFormValues = UnionOmit<Entry, "id">
+
+export type GenderFormOption = {
+  value: Gender
+  label: string
+}
+
+export type DiagnosisFormOption = {
+  value: string
+  label: string
+}
+
+export type FormOption = GenderFormOption | DiagnosisFormOption
