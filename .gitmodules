@@ -1,0 +1,3 @@
+[submodule "part10"]
+	path = part10
+	url = git@github.com:bittirousku/fullstack-open2021-part10.git
