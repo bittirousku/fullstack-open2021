@@ -4,3 +4,6 @@
 [submodule "part11/full-stack-open-pokedex"]
 	path = part11/full-stack-open-pokedex
 	url = git@github.com:bittirousku/full-stack-open-pokedex.git
+[submodule "part3/puhelinluettelo_backend"]
+	path = part3/puhelinluettelo_backend
+	url = git@github.com:bittirousku/fullstack-open2021-part3.git
